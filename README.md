@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./static/logo.png" alt="Hemorra Banner" width="300px">
+  <img src="./static/logo.png.jpeg" alt="Hemorra Banner" width="300px">
 </p>
 
 # Hemorra 🩸
