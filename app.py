@@ -17,7 +17,7 @@ socketio = SocketIO(app)
 def generate_unique_code():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
 
-BOT_TOKEN = "YOUR_TOKEN_HERE"
+BOT_TOKEN = "8440309378:AAFMT7nVeGbykvR2NE6clS8lNPgNhviGy4A"
 
 def send_telegram_notification(chat_id, blood_group, hospital, city, urgency):
     urgency_emoji = {"critical": "🔴", "urgent": "🟡", "moderate": "🟢"}
@@ -357,4 +357,4 @@ def status_api(code):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=False)
