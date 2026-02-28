@@ -233,7 +233,7 @@ Reply DONE
 ## Project Demo
 
 ### Video
-[Add your demo video link here]
+https://drive.google.com/file/d/1hz1LYxiOfVXbWqPOxifMTwH5pDkFGaSJ/view?usp=drivesdk
 
 *Demo shows: landing page → donor registration → blood request form → live dashboard updating as donor replies YES on Telegram → 90 day cooldown activating after DONE reply → admin dashboard overview*
 
