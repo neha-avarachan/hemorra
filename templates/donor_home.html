@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - Donor Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <span class="nav-name">👤 {{ user.name }}</span>
+            <a href="/logout" class="btn-nav-register">Logout</a>
+        </div>
+    </nav>
+
+    <div class="donor-page-container">
+
+        <div class="profile-card">
+            <div class="profile-top">
+                <div class="blood-group-badge">{{ user.blood_group }}</div>
+                <div class="profile-info">
+                    <h2>{{ user.name }}</h2>
+                    <p>{{ user.college_id }} — {{ user.city }}</p>
+                </div>
+            </div>
+
+            {% if user.next_eligible_date and user.next_eligible_date > now %}
+                <div class="availability-badge unavailable">
+                    ⏳ Medical Cooldown — Eligible again on
+                    {{ user.next_eligible_date.strftime('%d %B %Y') }}
+                </div>
+            {% elif user.is_available %}
+                <div class="availability-badge available">
+                    ✅ Available to Donate
+                    <a href="/toggle_availability" class="toggle-btn">
+                        Mark Unavailable
+                    </a>
+                </div>
+            {% else %}
+                <div class="availability-badge unavailable">
+                    ⏴ Manually Unavailable
+                    <a href="/toggle_availability" class="toggle-btn">
+                        Mark Available
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="donor-stats">
+            <div class="donor-stat-card">
+                <div class="stat-number">{{ user.donate_count }}</div>
+                <div class="stat-label">Times Donated</div>
+            </div>
+            <div class="donor-stat-card">
+                {% if user.donate_count >= 3 %}
+                    <div class="badge gold">🥇 Gold Donor</div>
+                {% elif user.donate_count >= 1 %}
+                    <div class="badge silver">🥈 Silver Donor</div>
+                {% else %}
+                    <div class="badge new">🌱 New Donor</div>
+                {% endif %}
+                <div class="stat-label">Your Badge</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>How it works</h3>
+            <p>
+                When someone in your college needs {{ user.blood_group }} blood,
+                you'll receive an SMS and a private message on Telegram.
+                Reply <strong>YES</strong> to confirm and get the
+                requester's contact number. After donating reply
+                <strong>DONE</strong> and you'll be automatically
+                marked unavailable for 90 days.
+            </p>
+        </div>
+
+        {% if not user.telegram_chat_id %}
+        <div class="telegram-box">
+            <div class="telegram-icon">✈️</div>
+            <h3>Connect Your Telegram</h3>
+            <p>
+                Connect Telegram to receive blood request alerts
+                in addition to SMS. Click below to open the Hemorra
+                bot and send <strong>/start</strong> to complete setup.
+            </p>
+            <a href="https://t.me/HemorraBOT"
+                target="_blank" class="btn-primary">
+                Connect Telegram
+            </a>
+        </div>
+        {% else %}
+        <div class="telegram-box connected">
+            <div class="telegram-icon">✅</div>
+            <h3>Telegram Connected</h3>
+            <p>You will receive blood request alerts on both SMS and Telegram.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <footer class="page-footer">
+        <p>🩸 Hemorra — Built for college communities</p>
+    </footer>
+
+</body>
+</html>

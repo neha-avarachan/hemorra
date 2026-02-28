@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <span class="nav-name">🔐 Admin Panel</span>
+            <a href="/admin/logout" class="btn-nav-register">Logout</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+
+        <div class="admin-header">
+            <h1>Platform Overview</h1>
+            <p>Live stats for Hemorra</p>
+        </div>
+
+        <!-- Overview Stats -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card blue">
+                <div class="admin-stat-num">{{ total_donors }}</div>
+                <div class="admin-stat-label">Total Donors</div>
+            </div>
+            <div class="admin-stat-card green">
+                <div class="admin-stat-num">{{ available_donors }}</div>
+                <div class="admin-stat-label">Available Now</div>
+            </div>
+            <div class="admin-stat-card yellow">
+                <div class="admin-stat-num">{{ in_cooldown }}</div>
+                <div class="admin-stat-label">In Cooldown</div>
+            </div>
+            <div class="admin-stat-card red">
+                <div class="admin-stat-num">{{ total_requests }}</div>
+                <div class="admin-stat-label">Total Requests</div>
+            </div>
+            <div class="admin-stat-card red">
+                <div class="admin-stat-num">{{ active_requests }}</div>
+                <div class="admin-stat-label">Active Requests</div>
+            </div>
+            <div class="admin-stat-card green">
+                <div class="admin-stat-num">{{ total_donations }}</div>
+                <div class="admin-stat-label">Donations Completed</div>
+            </div>
+        </div>
+
+        <!-- Blood Group Breakdown -->
+        <div class="admin-section">
+            <h2>Available Donors by Blood Group</h2>
+            <div class="blood-group-grid">
+                {% for bg, count in blood_group_counts.items() %}
+                <div class="blood-group-card {% if count == 0 %}empty{% endif %}">
+                    <div class="bg-label">{{ bg }}</div>
+                    <div class="bg-count">{{ count }}</div>
+                    <div class="bg-status">
+                        {% if count == 0 %}
+                            ⚠️ No donors
+                        {% elif count == 1 %}
+                            ⚡ Low
+                        {% else %}
+                            ✅ Good
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="admin-section">
+            <h2>Recent Blood Requests</h2>
+            <div class="admin-table-box">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Blood Group</th>
+                            <th>Hospital</th>
+                            <th>City</th>
+                            <th>Urgency</th>
+                            <th>Status</th>
+                            <th>Posted</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in recent_requests %}
+                        <tr>
+                            <td>{{ req.requester_name }}</td>
+                            <td><span class="bg-pill">{{ req.blood_group }}</span></td>
+                            <td>{{ req.hospital }}</td>
+                            <td>{{ req.city }}</td>
+                            <td>
+                                {% if req.urgency == 'critical' %}
+                                    <span class="urgency-pill critical">🔴 Critical</span>
+                                {% elif req.urgency == 'urgent' %}
+                                    <span class="urgency-pill urgent">🟡 Urgent</span>
+                                {% else %}
+                                    <span class="urgency-pill moderate">🟢 Moderate</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if req.status == 'active' %}
+                                    <span class="status-pill active">Active</span>
+                                {% else %}
+                                    <span class="status-pill closed">Closed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ req.created_at.strftime('%d %b %Y %I:%M %p') }}</td>
+                            <td>
+                                {% if req.status == 'active' %}
+                                <a href="/admin/close_request/{{ req.id }}"
+                                    class="btn-close-req"
+                                    onclick="return confirm('Close this request?')">
+                                    Close
+                                </a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- All Donors -->
+        <div class="admin-section">
+            <h2>All Registered Donors</h2>
+            <div class="admin-table-box">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Blood Group</th>
+                            <th>City</th>
+                            <th>Donations</th>
+                            <th>Status</th>
+                            <th>Telegram</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donor in all_donors %}
+                        <tr>
+                            <td>{{ donor.name }}</td>
+                            <td><span class="bg-pill">{{ donor.blood_group }}</span></td>
+                            <td>{{ donor.city }}</td>
+                            <td>{{ donor.donate_count }}</td>
+                            <td>
+                                {% if donor.next_eligible_date and donor.next_eligible_date > now %}
+                                    <span class="status-pill cooldown">Cooldown</span>
+                                {% elif donor.is_available %}
+                                    <span class="status-pill active">Available</span>
+                                {% else %}
+                                    <span class="status-pill closed">Unavailable</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if donor.telegram_chat_id %}
+                                    <span class="status-pill active">Connected</span>
+                                {% else %}
+                                    <span class="status-pill closed">Not linked</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">
+        <p>🩸 Hemorra — Admin Panel</p>
+    </footer>
+
+</body>
+</html>

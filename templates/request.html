@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - Request Blood</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/register" class="nav-link">Become a Donor</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-form-box">
+            <div class="page-form-header">
+                <h2>🚨 Request Blood</h2>
+                <p>Fill in the details and we'll notify matching donors immediately</p>
+            </div>
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <label>Your Full Name</label>
+                    <input type="text" name="name"
+                        placeholder="Your name" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Your Phone Number</label>
+                    <input type="tel" name="phone"
+                        placeholder="Donors will call you on this number" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Blood Group Needed</label>
+                    <select name="blood_group" required>
+                        <option value="">Select blood group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Hospital Name</label>
+                    <input type="text" name="hospital"
+                        placeholder="Name of the hospital" required>
+                </div>
+
+                <div class="input-group">
+                    <label>City</label>
+                    <input type="text" name="city"
+                        placeholder="City where blood is needed" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Urgency Level</label>
+                    <select name="urgency" required>
+                        <option value="">Select urgency</option>
+                        <option value="critical">
+                            🔴 Critical — Needed within the hour
+                        </option>
+                        <option value="urgent">
+                            🟡 Urgent — Needed within a few hours
+                        </option>
+                        <option value="moderate">
+                            🟢 Moderate — Needed within the day
+                        </option>
+                    </select>
+                </div>
+
+                <div class="eligibility-note">
+                    📞 Matching donors will be notified immediately.
+                    A confirmed donor will contact you directly on
+                    your phone number.
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    🚨 Send Request Now
+                </button>
+            </form>
+
+            <p class="switch-link">
+                <a href="/">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <p>🩸 Hemorra — Built for college communities</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - Register as Donor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/login" class="nav-link">Donor Login</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-form-box">
+            <div class="page-form-header">
+                <h2>Become a Donor</h2>
+                <p>Your blood could save a batchmate's life</p>
+            </div>
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name"
+                        placeholder="Your full name" required>
+                </div>
+
+                <div class="input-group">
+                    <label>College ID</label>
+                    <input type="text" name="college_id"
+                        placeholder="Your student ID" required>
+                </div>
+
+                <div class="input-group">
+                    <label>College Email</label>
+                    <input type="email" name="email"
+                        placeholder="yourname@college.edu" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="tel" name="phone"
+                        placeholder="Your 10 digit mobile number" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Blood Group</label>
+                    <select name="blood_group" required>
+                        <option value="">Select blood group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" name="weight"
+                        placeholder="Your weight in kg" min="45" required>
+                </div>
+
+                <div class="input-group">
+                    <label>City</label>
+                    <input type="text" name="city"
+                        placeholder="Your city" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Last Donation Date
+                        <span class="optional">(leave blank if never donated)</span>
+                    </label>
+                    <input type="date" name="last_donation_date">
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password"
+                        placeholder="Create a password" required>
+                </div>
+
+                <div class="eligibility-note">
+    ✅ By registering you confirm you are generally
+    healthy and meet basic donation eligibility.
+    Final screening happens at the hospital.
+</div>
+<div class="telegram-note">
+    ✈️ <strong>Telegram required</strong> — After registering 
+    you will need to connect your Telegram account to receive 
+    blood request alerts. Download Telegram free from the 
+    App Store or Play Store if you don't have it.
+</div>
+
+                <button type="submit" class="btn-primary">
+                    Register as Donor
+                </button>
+            </form>
+
+            <p class="switch-link">Already registered?
+                <a href="/login">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <p>🩸 Hemorra — Built for college communities</p>
+    </footer>
+
+</body>
+</html>

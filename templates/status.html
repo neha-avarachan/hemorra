@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - Request Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/request" class="btn-nav-register">New Request</a>
+        </div>
+    </nav>
+
+    <div class="status-page-container">
+
+        <div class="status-header-card">
+            {% if blood_req.urgency == 'critical' %}
+                <div class="urgency-badge critical">🔴 Critical</div>
+            {% elif blood_req.urgency == 'urgent' %}
+                <div class="urgency-badge urgent">🟡 Urgent</div>
+            {% else %}
+                <div class="urgency-badge moderate">🟢 Moderate</div>
+            {% endif %}
+
+            <h1>{{ blood_req.blood_group }} Blood Needed</h1>
+            <p class="hospital-name">📍 {{ blood_req.hospital }}, {{ blood_req.city }}</p>
+            <p class="posted-time">⏱ {{ posted_time }}</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="notified">{{ notified }}</div>
+                <div class="stat-label">Donors Notified</div>
+            </div>
+            <div class="stat-card confirmed-card">
+                <div class="stat-number" id="confirmed">{{ confirmed }}</div>
+                <div class="stat-label">Confirmed Coming</div>
+            </div>
+            <div class="stat-card declined-card">
+                <div class="stat-number" id="declined">{{ declined }}</div>
+                <div class="stat-label">Unavailable</div>
+            </div>
+        </div>
+
+        <div id="status-message">
+            {% if confirmed > 0 %}
+                <div class="message-box success">
+                    🎉 A donor has confirmed they are coming.
+                    They will contact you shortly on your phone number.
+                </div>
+            {% elif notified > 0 %}
+                <div class="message-box waiting">
+                    ⏳ Request sent to {{ notified }} donors.
+                    Waiting for responses...
+                </div>
+            {% else %}
+                <div class="message-box warning">
+                    ⚠️ No matching donors found right now.
+                    We'll notify you when a donor registers.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="share-box">
+            <p>Share this status page with family or friends:</p>
+            <div class="share-url" id="share-url">
+                {{ request.url }}
+            </div>
+            <button class="btn-primary" onclick="copyURL()">
+                📋 Copy Link
+            </button>
+        </div>
+
+    </div>
+
+    <footer class="page-footer">
+        <p>🩸 Hemorra — Built for college communities</p>
+    </footer>
+
+    <script>
+        const code = "{{ blood_req.unique_code }}";
+
+        function updateStats() {
+            fetch(`/api/status/${code}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('notified').textContent = data.notified;
+                    document.getElementById('confirmed').textContent = data.confirmed;
+                    document.getElementById('declined').textContent = data.declined;
+
+                    const messageBox = document.getElementById('status-message');
+                    if (data.confirmed > 0) {
+                        messageBox.innerHTML = `
+                            <div class="message-box success">
+                                🎉 A donor has confirmed they are coming.
+                                They will contact you shortly on your phone number.
+                            </div>`;
+                    } else if (data.notified > 0) {
+                        messageBox.innerHTML = `
+                            <div class="message-box waiting">
+                                ⏳ Request sent to ${data.notified} donors.
+                                Waiting for responses...
+                            </div>`;
+                    }
+                });
+        }
+
+        setInterval(updateStats, 5000);
+
+        function copyURL() {
+            const url = document.getElementById('share-url').textContent.trim();
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied!');
+            });
+        }
+    </script>
+
+</body>
+</html>

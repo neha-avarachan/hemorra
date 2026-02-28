@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - College Blood Request Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="landing-body">
+
+    <!-- NAVBAR -->
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <a href="/login" class="nav-link">Donor Login</a>
+            <a href="/register" class="btn-nav-register">Become a Donor</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <div class="hero-bg-circles">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+            <div class="circle circle-3"></div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge animate-fade-up">
+    🩸 Built for College Communities
+</div>
+<div class="hero-badge animate-fade-up delay-1" style="margin-left: 8px;">
+    ✈️ Donors need Telegram to receive alerts
+</div>
+            <h1 class="hero-title animate-fade-up delay-1">
+                Blood when it<br>
+                <span class="hero-title-red">matters most.</span>
+            </h1>
+            <p class="hero-desc animate-fade-up delay-2">
+                Stop waiting in silent group chats. Hemorra notifies the right donors instantly and shows you in real time if help is coming.
+            </p>
+            <div class="hero-buttons animate-fade-up delay-3">
+                <a href="/request" class="btn-hero-primary">
+                    🚨 I Need Blood
+                </a>
+                <a href="/register" class="btn-hero-outline">
+                    💉 I Want to Donate
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-card animate-fade-left delay-2">
+            <div class="hero-card-header">
+                <span class="card-badge-critical">🔴 Critical</span>
+            </div>
+            <h3 class="hero-card-title">O+ Blood Needed</h3>
+            <p class="hero-card-sub">📍 Amrita Hospital, Kochi</p>
+            <p class="hero-card-time">⏱ Posted 2 minutes ago</p>
+            <div class="hero-card-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-num" id="counter-notified">0</div>
+                    <div class="hero-stat-label">Notified</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num green" id="counter-confirmed">0</div>
+                    <div class="hero-stat-label">Confirmed</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num red" id="counter-declined">0</div>
+                    <div class="hero-stat-label">Unavailable</div>
+                </div>
+            </div>
+            <div class="hero-card-msg">
+                🎉 A donor confirmed they're coming!
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section">
+        <div class="how-container">
+            <div class="section-label">How it works</div>
+            <h2 class="section-title">From request to response<br>in minutes.</h2>
+
+            <div class="steps-grid">
+                <div class="step-card animate-on-scroll">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">📋</div>
+                    <h3>Post a Request</h3>
+                    <p>Fill a simple form with blood group, hospital, and urgency. No account needed.</p>
+                </div>
+                <div class="step-card animate-on-scroll">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">🎯</div>
+                    <h3>Targeted Alert</h3>
+                    <p>Only donors with the matching blood group get notified on Telegram. Nobody else is disturbed.</p>
+                </div>
+                <div class="step-card animate-on-scroll">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">📊</div>
+                    <h3>Watch Live</h3>
+                    <p>Your status page updates in real time. See who's coming before they even arrive.</p>
+                </div>
+                <div class="step-card animate-on-scroll">
+                    <div class="step-number">04</div>
+                    <div class="step-icon">🤝</div>
+                    <h3>Direct Contact</h3>
+                    <p>Confirmed donors get your number and call you directly to coordinate.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section">
+        <div class="features-container">
+            <div class="section-label">Why Hemorra</div>
+            <h2 class="section-title">Not just another<br>donor directory.</h2>
+
+            <div class="features-grid">
+                <div class="feature-big animate-on-scroll">
+                    <div class="feature-big-icon">📊</div>
+                    <h3>Live Response Dashboard</h3>
+                    <p>The moment you post a request, a live page shows you exactly how many donors were notified, how many responded, and who confirmed they're on their way. No more anxious waiting.</p>
+                </div>
+                <div class="features-small-grid">
+                    <div class="feature-small animate-on-scroll">
+                        <div class="feature-small-icon">🎯</div>
+                        <h3>Targeted Alerts</h3>
+                        <p>Only matching blood group donors get notified. O- donors receive all requests as universal donors.</p>
+                    </div>
+                    <div class="feature-small animate-on-scroll">
+                        <div class="feature-small-icon">✅</div>
+                        <h3>Verified Community</h3>
+                        <p>Every donor is a registered college student. Trust is built in from the start.</p>
+                    </div>
+                    <div class="feature-small animate-on-scroll">
+                        <div class="feature-small-icon">⏳</div>
+                        <h3>Smart Cooldown</h3>
+                        <p>Donors are automatically marked unavailable for 90 days after donating. No manual tracking.</p>
+                    </div>
+                    <div class="feature-small animate-on-scroll">
+                        <div class="feature-small-icon">🏅</div>
+                        <h3>Donor Badges</h3>
+                        <p>Every donation earns recognition. Silver and Gold badges for repeat donors.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+        <div class="cta-container">
+            <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="cta-logo">
+            <h2 class="cta-title">Ready to save a life?</h2>
+            <p class="cta-desc">Join your college's blood donor community today. It takes 2 minutes to register and could save someone's life tomorrow.</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn-hero-primary">
+                    💉 Register as Donor
+                </a>
+                <a href="/request" class="btn-hero-outline btn-outline-white">
+                    🚨 Request Blood
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Animate counters on hero card
+        function animateCounter(id, target, delay) {
+            setTimeout(() => {
+                let count = 0;
+                const interval = setInterval(() => {
+                    count++;
+                    document.getElementById(id).textContent = count;
+                    if (count >= target) clearInterval(interval);
+                }, 100);
+            }, delay);
+        }
+
+        window.addEventListener('load', () => {
+            animateCounter('counter-notified', 4, 1000);
+            animateCounter('counter-confirmed', 2, 1800);
+            animateCounter('counter-declined', 1, 2400);
+        });
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+</html>

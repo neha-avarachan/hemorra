@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra - Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-form-box">
+            <div class="page-form-header">
+                <h2>🔐 Admin Login</h2>
+                <p>Restricted access — platform administrators only</p>
+            </div>
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" name="username"
+                        placeholder="Admin username" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password"
+                        placeholder="Admin password" required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Login as Admin
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <p>🩸 Hemorra — Admin Panel</p>
+    </footer>
+
+</body>
+</html>
