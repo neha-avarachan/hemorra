@@ -13,7 +13,7 @@
 - Member 2: Akshara A Karthikeyan - College of Engineering Chengannur
 
 ### Hosted Project Link
-http://127.0.0.1:5000/
+https://hemorra.onrender.com
 
 ### Project Description
 Hemorra is a college blood request platform that connects requesters with verified student donors instantly. When someone needs blood, matching donors get a Telegram alert immediately and the requester watches responses come in on a live dashboard — eliminating the anxiety of waiting in silent WhatsApp groups.
