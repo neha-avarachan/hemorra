@@ -6,14 +6,14 @@
 
 ## Basic Details
 
-### Team Name: [Init:1]
+### Team Name: Init:1
 
 ### Team Members
-- Member 1: [Neha Avarachan] - [College of Engineering Chengannur]
-- Member 2: [Akshara A Karthikeyan] - [College of Engineering Chengannur]
+- Member 1: Neha Avarachan - College of Engineering Chengannur
+- Member 2: Akshara A Karthikeyan - College of Engineering Chengannur
 
 ### Hosted Project Link
-[Add hosted link here if deployed]
+http://127.0.0.1:5000/
 
 ### Project Description
 Hemorra is a college blood request platform that connects requesters with verified student donors instantly. When someone needs blood, matching donors get a Telegram alert immediately and the requester watches responses come in on a live dashboard — eliminating the anxiety of waiting in silent WhatsApp groups.
