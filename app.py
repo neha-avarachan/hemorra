@@ -1,13 +1,24 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response
 from flask_socketio import SocketIO, emit
 from database import db, User, BloodRequest, DonorResponse
+from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
+import requests
 import string
 import requests as http_requests
 
+
 app = Flask(__name__)
+@app.after_request
+def add_header(response):
+    if 'Content-Type' in response.headers and response.headers['Content-Type'] == 'text/plain':
+        # If Flask mistakenly identifies CSS as plain text, force it to CSS
+        if response.response and isinstance(response.response[0], bytes):
+            if b'body {' in response.response[0] or b':root {' in response.response[0]:
+                response.headers['Content-Type'] = 'text/css'
+    return response
 app.config['SECRET_KEY'] = 'hemorra2024'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hemorra.db'
 
@@ -97,7 +108,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        return redirect(url_for('login'))
+        return redirect(url_for('login') + '?new=true')
 
     return render_template('register.html')
 
@@ -152,6 +163,21 @@ def toggle_availability():
     db.session.commit()
     
     return redirect(url_for('donor_home'))
+
+@app.route('/api/toggle_availability', methods=['POST'])
+def toggle_availability_api():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    user = User.query.get(session['user_id'])
+
+    if user.next_eligible_date and user.next_eligible_date > datetime.utcnow():
+        return jsonify({'error': 'In cooldown', 'available': False})
+
+    user.is_available = not user.is_available
+    db.session.commit()
+
+    return jsonify({'available': user.is_available})
 
 # ------------------ ADMIN ------------------
 ADMIN_USERNAME = "admin"
@@ -298,6 +324,25 @@ def blood_request():
 
     return render_template('request.html')
 
+@app.route('/find-request', methods=['GET', 'POST'])
+def find_request():
+    requests_found = None
+    error = None
+
+    if request.method == 'POST':
+        phone = request.form.get('phone', '').strip()
+        requests_found = BloodRequest.query.filter_by(
+            requester_phone=phone
+        ).order_by(BloodRequest.created_at.desc()).all()
+
+        if not requests_found:
+            error = 'No requests found for that phone number.'
+            requests_found = None
+
+    return render_template('find_request.html',
+                           requests_found=requests_found,
+                           error=error)
+
 # ------------------ STATUS PAGE ------------------
 @app.route('/status/<code>')
 def status(code):
@@ -349,10 +394,57 @@ def status_api(code):
     declined = len([r for r in responses if r.status == 'declined'])
 
     return jsonify({
-        'notified': notified,
-        'confirmed': confirmed,
-        'declined': declined
-    })
+    'notified':  len([r for r in responses if r.status in ['notified', 'confirmed', 'donated', 'declined']]),
+    'confirmed': len([r for r in responses if r.status == 'confirmed']),
+    'declined':  len([r for r in responses if r.status == 'declined']),
+    'standby':   len([r for r in responses if r.status == 'standby']),
+    'request_status': blood_req.status
+})
+
+def send_reminder_notifications():
+    with app.app_context():
+        today = datetime.utcnow().date()
+        reminder_date = today + timedelta(days=5)
+
+        # Find donors whose cooldown ends in exactly 5 days
+        donors = User.query.filter(
+            User.next_eligible_date != None,
+            db.func.date(User.next_eligible_date) == reminder_date
+        ).all()
+
+        for donor in donors:
+            if donor.telegram_chat_id:
+                message = (
+                    f"👋 Hey {donor.name}!\n\n"
+                    f"Just a heads up — your 90-day donation cooldown ends in "
+                    f"*5 days* on {donor.next_eligible_date.strftime('%d %B %Y')}.\n\n"
+                    f"You'll automatically become available to receive blood requests again. "
+                    f"If you're not ready to donate yet, log in to Hemorra and mark yourself "
+                    f"as unavailable.\n\n"
+                    f"Thank you for being a donor 🩸"
+                )
+                try:
+                    requests.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                        json={
+                            "chat_id": donor.telegram_chat_id,
+                            "text": message,
+                            "parse_mode": "Markdown"
+                        }
+                    )
+                    print(f"Reminder sent to {donor.name}")
+                except Exception as e:
+                    print(f"Failed to send reminder to {donor.name}: {e}")
+
+# Start scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    func=send_reminder_notifications,
+    trigger='cron',
+    hour=9,
+    minute=0
+)
+scheduler.start()
 
 if __name__ == '__main__':
     with app.app_context():

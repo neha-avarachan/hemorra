@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hemorra - Login</title>
+    <title>Hemorra — Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="page-body">
 
@@ -20,8 +20,13 @@
     <div class="page-container">
         <div class="page-form-box">
             <div class="page-form-header">
-                <h2>Welcome Back</h2>
-                <p>Login to your donor account</p>
+                {% if request.args.get('new') %}
+                    <h2>Account Created! 🎉</h2>
+                    <p>Login to get started as a donor</p>
+                {% else %}
+                    <h2>Welcome Back</h2>
+                    <p>Login to your donor account</p>
+                {% endif %}
             </div>
 
             {% if error %}
@@ -56,9 +61,7 @@
         </div>
     </div>
 
-    <footer class="page-footer">
-        <p>🩸 Hemorra — Built for college communities</p>
-    </footer>
+    <footer class="page-footer">🩸 Hemorra — Built for college communities</footer>
 
 </body>
 </html>

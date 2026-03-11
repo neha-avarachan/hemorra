@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemorra — Find My Request</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-body">
+
+    <nav class="nav-landing">
+        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/request" class="btn-nav-register">New Request</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-form-box">
+            <div class="page-form-header">
+                <h2>🔍 Find My Request</h2>
+                <p>Enter your phone number to find your active blood request</p>
+            </div>
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <label>Your Phone Number</label>
+                    <input type="tel" name="phone"
+                        placeholder="The number you used when requesting"
+                        required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Find My Request
+                </button>
+            </form>
+
+            {% if requests_found %}
+            <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <p style="font-size: 13px; color: var(--ivory-muted); margin-bottom: 14px; font-weight: 300;">
+                    Found {{ requests_found | length }} request(s) linked to your number:
+                </p>
+                {% for req in requests_found %}
+                <a href="/status/{{ req.unique_code }}" style="text-decoration: none;">
+                    <div style="
+                        background: rgba(255,255,255,0.05);
+                        border: 1px solid rgba(255,255,255,0.1);
+                        border-radius: 12px;
+                        padding: 18px 20px;
+                        margin-bottom: 10px;
+                        transition: all 0.25s ease;
+                        cursor: pointer;
+                    "
+                    onmouseover="this.style.borderColor='rgba(196,149,42,0.4)'; this.style.background='rgba(255,255,255,0.08)'"
+                    onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)'">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--ivory); margin-bottom: 4px;">
+                                    {{ req.blood_group }} Blood — {{ req.hospital }}
+                                </div>
+                                <div style="font-size: 12px; color: var(--ivory-muted); font-weight: 300;">
+                                    📍 {{ req.city }} &nbsp;·&nbsp;
+                                    {% if req.status == 'active' %}
+                                        <span style="color: #7BAAD4;">● Active</span>
+                                    {% elif req.status == 'fulfilled' %}
+                                        <span style="color: #4DD894;">● Fulfilled</span>
+                                    {% else %}
+                                        <span style="color: rgba(240,235,227,0.3);">● Closed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div style="font-size: 18px; color: var(--gold-light);">→</div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <p class="switch-link" style="margin-top: 20px;">
+                <a href="/request">← Post a new request</a>
+            </p>
+        </div>
+    </div>
+
+    <footer class="page-footer">🩸 Hemorra — Built for college communities</footer>
+
+</body>
+</html>

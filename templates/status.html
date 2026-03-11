@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hemorra - Request Status</title>
+    <title>Hemorra — Request Status</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="page-body">
 
@@ -19,106 +19,239 @@
 
     <div class="status-page-container">
 
+        <!-- Header Card -->
         <div class="status-header-card">
-            {% if blood_req.urgency == 'critical' %}
-                <div class="urgency-badge critical">🔴 Critical</div>
-            {% elif blood_req.urgency == 'urgent' %}
-                <div class="urgency-badge urgent">🟡 Urgent</div>
-            {% else %}
-                <div class="urgency-badge moderate">🟢 Moderate</div>
-            {% endif %}
-
+            <span class="urgency-badge {{ blood_req.urgency }}">
+                {% if blood_req.urgency == 'critical' %}🔴
+                {% elif blood_req.urgency == 'urgent' %}🟡
+                {% else %}🟢{% endif %}
+                {{ blood_req.urgency.capitalize() }}
+            </span>
             <h1>{{ blood_req.blood_group }} Blood Needed</h1>
-            <p class="hospital-name">📍 {{ blood_req.hospital }}, {{ blood_req.city }}</p>
-            <p class="posted-time">⏱ {{ posted_time }}</p>
+            <div class="hospital-name">📍 {{ blood_req.hospital }}, {{ blood_req.city }}</div>
+            <div class="posted-time">{{ posted_time }}</div>
         </div>
 
-        <div class="stats-grid">
+        <!-- SKELETON shown on first load -->
+        <div class="stats-grid-four" id="stats-skeleton">
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-number"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-number"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-number"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-number"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+        </div>
+
+        <!-- REAL STATS hidden until data loads -->
+        <div class="stats-grid-four" id="stats-real" style="display:none;">
             <div class="stat-card">
-                <div class="stat-number" id="notified">{{ notified }}</div>
-                <div class="stat-label">Donors Notified</div>
+                <div class="stat-number" id="notified">—</div>
+                <div class="stat-label">Notified</div>
             </div>
             <div class="stat-card confirmed-card">
-                <div class="stat-number" id="confirmed">{{ confirmed }}</div>
-                <div class="stat-label">Confirmed Coming</div>
+                <div class="stat-number" id="confirmed">—</div>
+                <div class="stat-label">Confirmed</div>
             </div>
             <div class="stat-card declined-card">
-                <div class="stat-number" id="declined">{{ declined }}</div>
-                <div class="stat-label">Unavailable</div>
+                <div class="stat-number" id="declined">—</div>
+                <div class="stat-label">Declined</div>
+            </div>
+            <div class="stat-card standby-card">
+                <div class="stat-number" id="standby">—</div>
+                <div class="stat-label">On Standby</div>
             </div>
         </div>
 
-        <div id="status-message">
-            {% if confirmed > 0 %}
-                <div class="message-box success">
-                    🎉 A donor has confirmed they are coming.
-                    They will contact you shortly on your phone number.
-                </div>
-            {% elif notified > 0 %}
-                <div class="message-box waiting">
-                    ⏳ Request sent to {{ notified }} donors.
-                    Waiting for responses...
-                </div>
-            {% else %}
-                <div class="message-box warning">
-                    ⚠️ No matching donors found right now.
-                    We'll notify you when a donor registers.
-                </div>
-            {% endif %}
+        <!-- Status message skeleton -->
+        <div id="message-skeleton" class="skeleton-card" style="padding:20px; margin-bottom:16px;">
+            <div class="skeleton skeleton-block long"></div>
+            <div class="skeleton skeleton-block medium" style="margin-bottom:0;"></div>
         </div>
 
-        <div class="share-box">
-            <p>Share this status page with family or friends:</p>
-            <div class="share-url" id="share-url">
-                {{ request.url }}
+        <!-- Real status message -->
+        <div id="status-message" style="display:none;"></div>
+
+        <!-- Fulfilled screen — hidden until triggered by JS -->
+        <div id="fulfilled-screen" style="display:none;">
+            <div class="status-header-card" style="text-align:center; padding: 60px 40px; margin-top: 16px;">
+                <div style="font-size: 64px; margin-bottom: 24px;">🎉</div>
+                <h1 style="margin-bottom: 12px;">Request Fulfilled</h1>
+                <p class="hospital-name" style="margin-bottom: 8px;">
+                    A donor has successfully donated blood.
+                </p>
+                <p class="posted-time">
+                    This request is now closed. Thank you to everyone who responded.
+                </p>
+                <div style="margin-top: 36px;">
+                    <a href="/request" class="btn-hero-primary"
+                        style="text-decoration:none; padding:14px 36px; border-radius:8px; display:inline-block;">
+                        Post a New Request
+                    </a>
+                </div>
             </div>
-            <button class="btn-primary" onclick="copyURL()">
-                📋 Copy Link
+        </div>
+
+        <!-- Standby Box -->
+        <div class="standby-box" id="standby-box" style="display:none;">
+            <p>Did a donor fail to show up or get rejected at the hospital?</p>
+            <button class="btn-standby" onclick="activateStandby()">
+                🔄 Activate Next Standby Donor
             </button>
+            <p class="standby-note" id="standby-note"></p>
+        </div>
+
+        <!-- Share Box -->
+        <div class="share-box" id="share-box">
+            <p>Accidentally closed this page? Save this link to come back anytime</p>
+            <div class="share-url" id="share-url">{{ request.url }}</div>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button class="btn-primary" onclick="copyUrl()"
+                    style="width:auto; padding:10px 24px; font-size:13px;">
+                    📋 Copy Link
+                </button>
+                <a href="/find-request"
+                    style="text-decoration:none; display:inline-block;">
+                    <button class="btn-outline"
+                        style="padding:10px 24px; font-size:13px;">
+                        🔍 Find My Request
+                    </button>
+                </a>
+            </div>
         </div>
 
     </div>
 
-    <footer class="page-footer">
-        <p>🩸 Hemorra — Built for college communities</p>
-    </footer>
+    <footer class="page-footer">🩸 Hemorra — Built for college communities</footer>
 
     <script>
         const code = "{{ blood_req.unique_code }}";
+        let firstLoad = true;
+        let isFulfilled = false;
+
+        function animateCounter(el, target) {
+            let start = 0;
+            const step = Math.max(1, target / 30);
+            const timer = setInterval(() => {
+                start += step;
+                if (start >= target) { el.textContent = target; clearInterval(timer); }
+                else { el.textContent = Math.floor(start); }
+            }, 20);
+        }
+
+        function showFulfilledScreen() {
+            if (isFulfilled) return;
+            isFulfilled = true;
+
+            // Hide live dashboard elements
+            document.getElementById('stats-skeleton').style.display = 'none';
+            document.getElementById('stats-real').style.display    = 'none';
+            document.getElementById('message-skeleton').style.display = 'none';
+            document.getElementById('status-message').style.display   = 'none';
+            document.getElementById('standby-box').style.display      = 'none';
+
+            // Show fulfilled screen
+            const screen = document.getElementById('fulfilled-screen');
+            screen.style.display = 'block';
+            screen.classList.add('skeleton-revealed');
+        }
 
         function updateStats() {
             fetch(`/api/status/${code}`)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
-                    document.getElementById('notified').textContent = data.notified;
-                    document.getElementById('confirmed').textContent = data.confirmed;
-                    document.getElementById('declined').textContent = data.declined;
 
-                    const messageBox = document.getElementById('status-message');
+                    // Check if fulfilled
+                    if (data.request_status === 'fulfilled') {
+                        showFulfilledScreen();
+                        return;
+                    }
+
+                    if (firstLoad) {
+                        firstLoad = false;
+
+                        const skeleton = document.getElementById('stats-skeleton');
+                        const real     = document.getElementById('stats-real');
+                        const msgSkel  = document.getElementById('message-skeleton');
+                        const msgReal  = document.getElementById('status-message');
+
+                        skeleton.style.transition = 'opacity 0.3s ease';
+                        msgSkel.style.transition  = 'opacity 0.3s ease';
+                        skeleton.style.opacity = '0';
+                        msgSkel.style.opacity  = '0';
+
+                        setTimeout(() => {
+                            skeleton.style.display = 'none';
+                            msgSkel.style.display  = 'none';
+                            real.style.display    = 'grid';
+                            msgReal.style.display = 'block';
+                            real.classList.add('skeleton-revealed');
+                            msgReal.classList.add('skeleton-revealed');
+
+                            animateCounter(document.getElementById('notified'),  data.notified  || 0);
+                            animateCounter(document.getElementById('confirmed'), data.confirmed || 0);
+                            animateCounter(document.getElementById('declined'),  data.declined  || 0);
+                            animateCounter(document.getElementById('standby'),   data.standby   || 0);
+                        }, 300);
+
+                    } else {
+                        document.getElementById('notified').textContent  = data.notified  || 0;
+                        document.getElementById('confirmed').textContent = data.confirmed || 0;
+                        document.getElementById('declined').textContent  = data.declined  || 0;
+                        document.getElementById('standby').textContent   = data.standby   || 0;
+                    }
+
+                    // Status message
+                    const msgBox = document.getElementById('status-message');
                     if (data.confirmed > 0) {
-                        messageBox.innerHTML = `
-                            <div class="message-box success">
-                                🎉 A donor has confirmed they are coming.
-                                They will contact you shortly on your phone number.
-                            </div>`;
+                        msgBox.innerHTML = `<div class="message-box success">🎉 A donor has confirmed they are coming. They will contact you shortly on your phone number.</div>`;
                     } else if (data.notified > 0) {
-                        messageBox.innerHTML = `
-                            <div class="message-box waiting">
-                                ⏳ Request sent to ${data.notified} donors.
-                                Waiting for responses...
-                            </div>`;
+                        msgBox.innerHTML = `<div class="message-box waiting">⏳ Request sent to ${data.notified} donors. Waiting for responses...</div>`;
+                    } else {
+                        msgBox.innerHTML = `<div class="message-box warning">⚠️ No matching donors found right now. Try again shortly.</div>`;
+                    }
+
+                    // Standby box
+                    document.getElementById('standby-box').style.display =
+                        data.standby > 0 ? 'block' : 'none';
+                });
+        }
+
+        function activateStandby() {
+            fetch(`/activate_standby/${code}`)
+                .then(r => r.json())
+                .then(data => {
+                    const note = document.getElementById('standby-note');
+                    if (data.success) {
+                        note.textContent = '✅ Next standby donor has been notified!';
+                        note.style.color = '#4DD894';
+                    } else {
+                        note.textContent = '⚠️ No more standby donors available.';
+                        note.style.color = '#F08090';
                     }
                 });
         }
 
-        setInterval(updateStats, 5000);
-
-        function copyURL() {
-            const url = document.getElementById('share-url').textContent.trim();
+        function copyUrl() {
+            const url = document.getElementById('share-url').textContent;
             navigator.clipboard.writeText(url).then(() => {
-                alert('Link copied!');
+                const btn = event.target;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy Link', 2000);
             });
         }
+
+        updateStats();
+        setInterval(updateStats, 5000);
     </script>
 
 </body>

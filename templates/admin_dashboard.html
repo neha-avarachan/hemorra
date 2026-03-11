@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hemorra - Admin Dashboard</title>
+    <title>Hemorra — Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="admin-body">
 
@@ -24,8 +24,18 @@
             <p>Live stats for Hemorra</p>
         </div>
 
-        <!-- Overview Stats -->
-        <div class="admin-stats-grid">
+        <!-- SKELETON STATS shown briefly on load -->
+        <div class="admin-stats-grid" id="admin-stats-skeleton">
+            {% for i in range(6) %}
+            <div class="skeleton-admin-card">
+                <div class="skeleton skeleton-admin-num"></div>
+                <div class="skeleton skeleton-admin-label"></div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- REAL STATS hidden until revealed -->
+        <div class="admin-stats-grid" id="admin-stats-real" style="display:none;">
             <div class="admin-stat-card blue">
                 <div class="admin-stat-num">{{ total_donors }}</div>
                 <div class="admin-stat-label">Total Donors</div>
@@ -48,12 +58,12 @@
             </div>
             <div class="admin-stat-card green">
                 <div class="admin-stat-num">{{ total_donations }}</div>
-                <div class="admin-stat-label">Donations Completed</div>
+                <div class="admin-stat-label">Donations Done</div>
             </div>
         </div>
 
         <!-- Blood Group Breakdown -->
-        <div class="admin-section">
+        <div class="admin-section animate-on-scroll">
             <h2>Available Donors by Blood Group</h2>
             <div class="blood-group-grid">
                 {% for bg, count in blood_group_counts.items() %}
@@ -61,13 +71,9 @@
                     <div class="bg-label">{{ bg }}</div>
                     <div class="bg-count">{{ count }}</div>
                     <div class="bg-status">
-                        {% if count == 0 %}
-                            ⚠️ No donors
-                        {% elif count == 1 %}
-                            ⚡ Low
-                        {% else %}
-                            ✅ Good
-                        {% endif %}
+                        {% if count == 0 %}⚠️ None
+                        {% elif count == 1 %}⚡ Low
+                        {% else %}✅ Good{% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -75,7 +81,7 @@
         </div>
 
         <!-- Recent Requests -->
-        <div class="admin-section">
+        <div class="admin-section animate-on-scroll">
             <h2>Recent Blood Requests</h2>
             <div class="admin-table-box">
                 <table class="admin-table">
@@ -99,32 +105,20 @@
                             <td>{{ req.hospital }}</td>
                             <td>{{ req.city }}</td>
                             <td>
-                                {% if req.urgency == 'critical' %}
-                                    <span class="urgency-pill critical">🔴 Critical</span>
-                                {% elif req.urgency == 'urgent' %}
-                                    <span class="urgency-pill urgent">🟡 Urgent</span>
-                                {% else %}
-                                    <span class="urgency-pill moderate">🟢 Moderate</span>
-                                {% endif %}
+                                {% if req.urgency == 'critical' %}<span class="urgency-pill critical">🔴 Critical</span>
+                                {% elif req.urgency == 'urgent' %}<span class="urgency-pill urgent">🟡 Urgent</span>
+                                {% else %}<span class="urgency-pill moderate">🟢 Moderate</span>{% endif %}
                             </td>
                             <td>
-                                {% if req.status == 'active' %}
-                                    <span class="status-pill active">Active</span>
-                                {% else %}
-                                    <span class="status-pill closed">Closed</span>
-                                {% endif %}
+                                {% if req.status == 'active' %}<span class="status-pill active">Active</span>
+                                {% else %}<span class="status-pill closed">Closed</span>{% endif %}
                             </td>
                             <td>{{ req.created_at.strftime('%d %b %Y %I:%M %p') }}</td>
                             <td>
                                 {% if req.status == 'active' %}
-                                <a href="/admin/close_request/{{ req.id }}"
-                                    class="btn-close-req"
-                                    onclick="return confirm('Close this request?')">
-                                    Close
-                                </a>
-                                {% else %}
-                                    —
-                                {% endif %}
+                                <a href="/admin/close_request/{{ req.id }}" class="btn-close-req"
+                                    onclick="return confirm('Close this request?')">Close</a>
+                                {% else %}—{% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -134,7 +128,7 @@
         </div>
 
         <!-- All Donors -->
-        <div class="admin-section">
+        <div class="admin-section animate-on-scroll">
             <h2>All Registered Donors</h2>
             <div class="admin-table-box">
                 <table class="admin-table">
@@ -146,6 +140,7 @@
                             <th>Donations</th>
                             <th>Status</th>
                             <th>Telegram</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,20 +151,17 @@
                             <td>{{ donor.city }}</td>
                             <td>{{ donor.donate_count }}</td>
                             <td>
-                                {% if donor.next_eligible_date and donor.next_eligible_date > now %}
-                                    <span class="status-pill cooldown">Cooldown</span>
-                                {% elif donor.is_available %}
-                                    <span class="status-pill active">Available</span>
-                                {% else %}
-                                    <span class="status-pill closed">Unavailable</span>
-                                {% endif %}
+                                {% if donor.next_eligible_date and donor.next_eligible_date > now %}<span class="status-pill cooldown">Cooldown</span>
+                                {% elif donor.is_available %}<span class="status-pill active">Available</span>
+                                {% else %}<span class="status-pill closed">Unavailable</span>{% endif %}
                             </td>
                             <td>
-                                {% if donor.telegram_chat_id %}
-                                    <span class="status-pill active">Connected</span>
-                                {% else %}
-                                    <span class="status-pill closed">Not linked</span>
-                                {% endif %}
+                                {% if donor.telegram_chat_id %}<span class="status-pill active">Connected</span>
+                                {% else %}<span class="status-pill closed">Not linked</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="/admin/delete_donor/{{ donor.id }}" class="btn-close-req"
+                                    onclick="return confirm('Delete {{ donor.name }}? This cannot be undone.')">Delete</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -180,9 +172,55 @@
 
     </div>
 
-    <footer class="page-footer">
-        <p>🩸 Hemorra — Admin Panel</p>
-    </footer>
+    <footer class="page-footer">🩸 Hemorra — Admin Panel</footer>
+
+    <script>
+        // Reveal admin stats after brief skeleton show
+        window.addEventListener('load', () => {
+            const skeleton = document.getElementById('admin-stats-skeleton');
+            const real     = document.getElementById('admin-stats-real');
+
+            setTimeout(() => {
+                skeleton.style.transition = 'opacity 0.3s ease';
+                skeleton.style.opacity = '0';
+
+                setTimeout(() => {
+                    skeleton.style.display = 'none';
+                    real.style.display = 'grid';
+                    real.classList.add('skeleton-revealed');
+
+                    // Animate each stat number
+                    real.querySelectorAll('.admin-stat-num').forEach(el => {
+                        const target = parseInt(el.textContent);
+                        if (!isNaN(target) && target > 0) {
+                            el.textContent = '0';
+                            let start = 0;
+                            const step = target / 25;
+                            const timer = setInterval(() => {
+                                start += step;
+                                if (start >= target) {
+                                    el.textContent = target;
+                                    clearInterval(timer);
+                                } else {
+                                    el.textContent = Math.floor(start);
+                                }
+                            }, 30);
+                        }
+                    });
+
+                }, 300);
+            }, 3000); // Show skeleton for 3000ms then reveal
+        });
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
 
 </body>
 </html>

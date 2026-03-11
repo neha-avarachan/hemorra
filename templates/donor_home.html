@@ -3,9 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hemorra - Donor Home</title>
+    <title>Hemorra — Donor Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── TOGGLE ANIMATION ── */
+        @keyframes badge-pop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.1); }
+            70%  { transform: scale(0.96); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes badge-glow-in {
+            0%   { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .badge-animating {
+            animation:
+                badge-pop   0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                badge-glow-in 0.3s ease forwards;
+        }
+
+        .availability-badge {
+            transition: background 0.4s ease, color 0.4s ease,
+                        border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        /* Loading spinner inside button */
+        .toggle-btn-loading {
+            opacity: 0.5 !important;
+            pointer-events: none !important;
+            cursor: not-allowed;
+        }
+
+        /* Cooldown warning shake */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%       { transform: translateX(-6px); }
+            40%       { transform: translateX(6px); }
+            60%       { transform: translateX(-4px); }
+            80%       { transform: translateX(4px); }
+        }
+
+        .badge-shake {
+            animation: shake 0.4s ease forwards;
+        }
+    </style>
 </head>
 <body class="page-body">
 
@@ -19,6 +64,7 @@
 
     <div class="donor-page-container">
 
+        <!-- Profile Card -->
         <div class="profile-card">
             <div class="profile-top">
                 <div class="blood-group-badge">{{ user.blood_group }}</div>
@@ -28,28 +74,39 @@
                 </div>
             </div>
 
+            <!-- Availability Badge -->
             {% if user.next_eligible_date and user.next_eligible_date > now %}
-                <div class="availability-badge unavailable">
+                <div id="availability-badge" class="availability-badge unavailable">
                     ⏳ Medical Cooldown — Eligible again on
                     {{ user.next_eligible_date.strftime('%d %B %Y') }}
                 </div>
+                <a href="#" class="toggle-btn" id="toggle-btn"
+                    onclick="handleCooldownClick(event)">
+                    In Cooldown
+                </a>
+
             {% elif user.is_available %}
-                <div class="availability-badge available">
+                <div id="availability-badge" class="availability-badge available">
                     ✅ Available to Donate
-                    <a href="/toggle_availability" class="toggle-btn">
-                        Mark Unavailable
-                    </a>
                 </div>
+                <a href="#" class="toggle-btn" id="toggle-btn"
+                    onclick="toggleAvailability(event)">
+                    Mark as Unavailable
+                </a>
+
             {% else %}
-                <div class="availability-badge unavailable">
-                    ⏴ Manually Unavailable
-                    <a href="/toggle_availability" class="toggle-btn">
-                        Mark Available
-                    </a>
+                <div id="availability-badge" class="availability-badge unavailable">
+                    ⏸️ Currently Unavailable
                 </div>
+                <a href="#" class="toggle-btn" id="toggle-btn"
+                    onclick="toggleAvailability(event)">
+                    Mark as Available
+                </a>
             {% endif %}
+
         </div>
 
+        <!-- Donor Stats -->
         <div class="donor-stats">
             <div class="donor-stat-card">
                 <div class="stat-number">{{ user.donate_count }}</div>
@@ -67,29 +124,30 @@
             </div>
         </div>
 
+        <!-- How it works -->
         <div class="info-box">
             <h3>How it works</h3>
             <p>
-                When someone in your college needs {{ user.blood_group }} blood,
-                you'll receive an SMS and a private message on Telegram.
-                Reply <strong>YES</strong> to confirm and get the
-                requester's contact number. After donating reply
-                <strong>DONE</strong> and you'll be automatically
+                When someone in your college needs <strong>{{ user.blood_group }}</strong> blood,
+                you'll receive a private message on Telegram.
+                Reply <strong>YES</strong> to confirm and get the requester's contact number.
+                After donating, reply <strong>DONE</strong> and you'll be automatically
                 marked unavailable for 90 days.
             </p>
         </div>
 
+        <!-- Telegram Box -->
         {% if not user.telegram_chat_id %}
         <div class="telegram-box">
             <div class="telegram-icon">✈️</div>
             <h3>Connect Your Telegram</h3>
             <p>
-                Connect Telegram to receive blood request alerts
-                in addition to SMS. Click below to open the Hemorra
-                bot and send <strong>/start</strong> to complete setup.
+                Connect Telegram to receive blood request alerts instantly.
+                Click below to open the Hemorra bot and send
+                <strong>/start</strong> followed by your registered email.
             </p>
-            <a href="https://t.me/HemorraBOT"
-                target="_blank" class="btn-primary">
+            <a href="https://t.me/HemorraBOT" target="_blank" class="btn-primary"
+                style="display:inline-block; width:auto; padding:12px 32px; text-decoration:none;">
                 Connect Telegram
             </a>
         </div>
@@ -97,15 +155,71 @@
         <div class="telegram-box connected">
             <div class="telegram-icon">✅</div>
             <h3>Telegram Connected</h3>
-            <p>You will receive blood request alerts on both SMS and Telegram.</p>
+            <p>You will receive blood request alerts on Telegram instantly.</p>
         </div>
         {% endif %}
 
     </div>
 
-    <footer class="page-footer">
-        <p>🩸 Hemorra — Built for college communities</p>
-    </footer>
+    <footer class="page-footer">🩸 Hemorra — Built for college communities</footer>
+
+    <script>
+        function toggleAvailability(e) {
+            e.preventDefault();
+
+            const badge = document.getElementById('availability-badge');
+            const btn   = document.getElementById('toggle-btn');
+
+            // Show loading state on button
+            btn.textContent = 'Updating...';
+            btn.classList.add('toggle-btn-loading');
+
+            fetch('/api/toggle_availability', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+
+                    if (data.error === 'In cooldown') {
+                        // Shake the badge — can't toggle during cooldown
+                        badge.classList.add('badge-shake');
+                        setTimeout(() => badge.classList.remove('badge-shake'), 500);
+                        btn.textContent = 'In Cooldown';
+                        btn.classList.remove('toggle-btn-loading');
+                        return;
+                    }
+
+                    if (data.available) {
+                        // Now available
+                        badge.className = 'availability-badge available';
+                        badge.textContent = '✅ Available to Donate';
+                        btn.textContent = 'Mark as Unavailable';
+                    } else {
+                        // Now unavailable
+                        badge.className = 'availability-badge unavailable';
+                        badge.textContent = '⏸️ Currently Unavailable';
+                        btn.textContent = 'Mark as Available';
+                    }
+
+                    // Trigger the pop + fade animation
+                    badge.classList.add('badge-animating');
+                    setTimeout(() => badge.classList.remove('badge-animating'), 500);
+
+                    // Re-enable button
+                    btn.classList.remove('toggle-btn-loading');
+                })
+                .catch(() => {
+                    btn.textContent = 'Error — try again';
+                    btn.classList.remove('toggle-btn-loading');
+                });
+        }
+
+        function handleCooldownClick(e) {
+            e.preventDefault();
+            const badge = document.getElementById('availability-badge');
+            // Just shake — can't do anything during medical cooldown
+            badge.classList.add('badge-shake');
+            setTimeout(() => badge.classList.remove('badge-shake'), 500);
+        }
+    </script>
 
 </body>
 </html>

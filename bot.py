@@ -5,7 +5,7 @@ from database import db, User, BloodRequest, DonorResponse
 from datetime import datetime, timedelta
 from app import app
 
-BOT_TOKEN = "YOUR_KEY_HERE"
+BOT_TOKEN = "YOUR_TOKEN_HERE"
 
 # --- /start command ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -146,7 +146,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if response:
                 response.status = 'donated'
-                db.session.commit()
+                # Mark request as fulfilled
+                response = DonorResponse.query.filter_by(
+                           donor_id=donor.id,
+                           status='confirmed'
+            ).order_by(DonorResponse.id.desc()).first()
+
+            if response:
+               blood_request = BloodRequest.query.get(response.request_id)
+            if blood_request:
+               blood_request.status = 'fulfilled'
+               db.session.commit()
 
             await update.message.reply_text(
                 f"You're a hero! 🎉\n\n"
