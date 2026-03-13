@@ -55,12 +55,19 @@
 <body class="page-body">
 
     <nav class="nav-landing">
-        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
-        <div class="nav-links">
-            <span class="nav-name">👤 {{ user.name }}</span>
-            <a href="/logout" class="btn-nav-register">Logout</a>
-        </div>
-    </nav>
+    <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+    <div class="nav-links">
+        <span class="nav-name">👤 {{ user.name }}</span>
+        <a href="/logout" class="btn-nav-register">Logout</a>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+    <a href="#">👤 {{ user.name }}</a>
+    <a href="/logout" class="btn-nav-register">Logout</a>
+</div>
 
     <div class="donor-page-container">
 
@@ -219,6 +226,11 @@
             badge.classList.add('badge-shake');
             setTimeout(() => badge.classList.remove('badge-shake'), 500);
         }
+
+        function toggleMenu() {
+    document.getElementById('hamburger').classList.toggle('open');
+    document.getElementById('mobile-menu').classList.toggle('open');
+}
     </script>
 
 </body>

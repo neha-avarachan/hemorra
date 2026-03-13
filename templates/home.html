@@ -212,13 +212,21 @@
 
     <!-- NAVBAR -->
     <nav class="nav-landing">
-        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
-        <div class="nav-links">
-            <a href="#how" class="nav-link">How It Works</a>
-            <a href="#features" class="nav-link">Features</a>
-            <a href="/register" class="btn-nav-register">Become a Donor</a>
-        </div>
-    </nav>
+    <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+    <div class="nav-links">
+        <a href="#how" class="nav-link">How It Works</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="/register" class="btn-nav-register">Become a Donor</a>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+    <a href="#how">How It Works</a>
+    <a href="#features">Features</a>
+    <a href="/register" class="btn-nav-register">Become a Donor</a>
+</div>
 
     <!-- TRUST BAR -->
     <div class="trust-bar">
@@ -531,6 +539,11 @@
             if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
+
+    function toggleMenu() {
+    document.getElementById('hamburger').classList.toggle('open');
+    document.getElementById('mobile-menu').classList.toggle('open');
+}
     </script>
 
 </body>

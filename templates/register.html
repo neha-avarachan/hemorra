@@ -10,12 +10,19 @@
 <body class="page-body">
 
     <nav class="nav-landing">
-        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
-        <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
-            <a href="/login" class="nav-link">Donor Login</a>
-        </div>
-    </nav>
+    <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+    <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/login" class="nav-link">Donor Login</a>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+    <a href="/">Home</a>
+    <a href="/login">Donor Login</a>
+</div>
 
     <div class="page-container">
         <div class="page-form-box">
@@ -119,6 +126,13 @@
     <footer class="page-footer">
         <p>🩸 Hemorra — Built for college communities</p>
     </footer>
+
+    <script>
+function toggleMenu() {
+    document.getElementById('hamburger').classList.toggle('open');
+    document.getElementById('mobile-menu').classList.toggle('open');
+}
+</script>
 
 </body>
 </html>

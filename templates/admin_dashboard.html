@@ -10,12 +10,19 @@
 <body class="admin-body">
 
     <nav class="nav-landing">
-        <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
-        <div class="nav-links">
-            <span class="nav-name">🔐 Admin Panel</span>
-            <a href="/admin/logout" class="btn-nav-register">Logout</a>
-        </div>
-    </nav>
+    <img src="{{ url_for('static', filename='logo.png.jpeg') }}" alt="Hemorra" class="nav-logo-img">
+    <div class="nav-links">
+        <span class="nav-name">🔐 Admin Panel</span>
+        <a href="/admin/logout" class="btn-nav-register">Logout</a>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+    <a href="#">🔐 Admin Panel</a>
+    <a href="/admin/logout" class="btn-nav-register">Logout</a>
+</div>
 
     <div class="admin-container">
 
@@ -220,6 +227,11 @@
         }, { threshold: 0.1 });
 
         document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+        function toggleMenu() {
+    document.getElementById('hamburger').classList.toggle('open');
+    document.getElementById('mobile-menu').classList.toggle('open');
+}
     </script>
 
 </body>
