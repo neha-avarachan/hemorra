@@ -901,7 +901,7 @@ body {
   z-index: 200;
 }
 .hamburger span {
-  display: block; width:24px; height:2px;
+  display: flex; width:40px; height:40px;
   background: var(--ivory-muted); border-radius:2px;
   transition: all 0.3s ease;
 }
@@ -936,3 +936,4 @@ body {
 .mobile-menu a:last-child { border-bottom:none; }
 .mobile-menu a:hover { color:var(--ivory); }
 .mobile-menu .btn-nav-register { text-align:center; margin-top:4px; }
+
