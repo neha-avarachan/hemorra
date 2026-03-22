@@ -5,7 +5,8 @@ from database import db, User, BloodRequest, DonorResponse
 from datetime import datetime, timedelta
 from app import app
 
-BOT_TOKEN = "YOUR_KEY_HERE"
+import os
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_TOKEN_HERE")
 
 # --- /start command ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):

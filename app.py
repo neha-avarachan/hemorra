@@ -28,7 +28,8 @@ socketio = SocketIO(app)
 def generate_unique_code():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
 
-BOT_TOKEN = "YOUR_KEY_HERE"
+import os
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_TOKEN_HERE")
 
 def send_telegram_notification(chat_id, blood_group, hospital, city, urgency):
     urgency_emoji = {"critical": "🔴", "urgent": "🟡", "moderate": "🟢"}
@@ -446,7 +447,15 @@ scheduler.add_job(
 )
 scheduler.start()
 
+import threading
+import subprocess
+
+def start_bot():
+    subprocess.Popen(['python', 'bot.py'])
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+    bot_thread = threading.Thread(target=start_bot, daemon=True)
+    bot_thread.start()
     socketio.run(app, debug=False)
