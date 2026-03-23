@@ -28,8 +28,7 @@ socketio = SocketIO(app)
 def generate_unique_code():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
 
-import os
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_TOKEN_HERE")
+BOT_TOKEN = "YOUR_KEY_HERE"
 
 def send_telegram_notification(chat_id, blood_group, hospital, city, urgency):
     urgency_emoji = {"critical": "🔴", "urgent": "🟡", "moderate": "🟢"}
@@ -260,6 +259,31 @@ def close_request(request_id):
     
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/delete_donor/<int:id>')
+def delete_donor(id):
+    if not session.get('admin'):
+        return redirect(url_for('admin'))
+    
+    user = User.query.get(id)
+    if user:
+        DonorResponse.query.filter_by(donor_id=id).delete()
+        db.session.delete(user)
+        db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/reset_cooldown/<int:id>')
+def reset_cooldown(id):
+    if not session.get('admin'):
+        return redirect(url_for('admin'))
+    
+    user = User.query.get(id)
+    if user:
+        user.next_eligible_date = None
+        user.is_available = True
+        user.donate_count = 0
+        db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
 @app.route('/admin/logout')
 def admin_logout():
     session.pop('admin', None)
@@ -456,6 +480,4 @@ def start_bot():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    bot_thread = threading.Thread(target=start_bot, daemon=True)
-    bot_thread.start()
     socketio.run(app, debug=False)

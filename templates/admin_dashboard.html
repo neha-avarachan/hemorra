@@ -169,6 +169,13 @@
                             <td>
                                 <a href="/admin/delete_donor/{{ donor.id }}" class="btn-close-req"
                                     onclick="return confirm('Delete {{ donor.name }}? This cannot be undone.')">Delete</a>
+
+                                <a href="/admin/reset_cooldown/{{ donor.id }}"
+                         class="btn-close-req"
+                         style="background:rgba(77,216,148,0.1); color:#4DD894; border-color:rgba(77,216,148,0.2); margin-left:6px;"
+                         onclick="return confirm('Reset {{ donor.name }} cooldown?')">
+                     Reset
+                             </a>
                             </td>
                         </tr>
                         {% endfor %}

@@ -5,8 +5,7 @@ from database import db, User, BloodRequest, DonorResponse
 from datetime import datetime, timedelta
 from app import app
 
-import os
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_TOKEN_HERE")
+BOT_TOKEN = "YOUR_KEY_HERE"
 
 # --- /start command ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -147,17 +146,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if response:
                 response.status = 'donated'
-                # Mark request as fulfilled
-                response = DonorResponse.query.filter_by(
-                           donor_id=donor.id,
-                           status='confirmed'
-            ).order_by(DonorResponse.id.desc()).first()
 
-            if response:
-               blood_request = BloodRequest.query.get(response.request_id)
+            #mark request as fulfilled
+            blood_request = BloodRequest.query.get(response.request_id)
             if blood_request:
-               blood_request.status = 'fulfilled'
-               db.session.commit()
+                    blood_request.status = 'fulfilled'
+
+            db.session.commit()
 
             await update.message.reply_text(
                 f"You're a hero! 🎉\n\n"
@@ -169,7 +164,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        # --- Default response ---
+         # --- Default response ---
         await update.message.reply_text(
             "I didn't understand that.\n\n"
             "If you received a blood request, reply:\n"
@@ -188,4 +183,4 @@ def run_bot():
     application.run_polling()
 
 if __name__ == '__main__':
-    run_bot()
+    run_bot()  
