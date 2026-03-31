@@ -3,15 +3,21 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from database import db, User, BloodRequest, DonorResponse
 from datetime import datetime, timedelta
-from app import app
+from flask import Flask
+from database import db, User, BloodRequest, DonorResponse
 
-BOT_TOKEN = "YOUR_KEY_HERE"
+def get_app():
+    from app import app
+    return app
+
+import os
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_KEY_HERE")
 
 # --- /start command ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.effective_chat.id)
     
-    with app.app_context():
+    with get_app().app_context():
         # Check if this telegram is already linked
         user = User.query.filter_by(telegram_chat_id=chat_id).first()
         
@@ -34,7 +40,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.effective_chat.id)
     text = update.message.text.strip()
 
-    with app.app_context():
+    with get_app().app_context():
 
         # --- Linking email ---
         if context.user_data.get('waiting_for_email'):
