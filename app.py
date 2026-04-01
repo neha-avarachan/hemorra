@@ -29,7 +29,7 @@ def generate_unique_code():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
 
 import os
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_KEY_HERE")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_ACTUAL_TOKEN_HERE")
 
 def send_telegram_notification(chat_id, blood_group, hospital, city, urgency):
     urgency_emoji = {"critical": "🔴", "urgent": "🟡", "moderate": "🟢"}
@@ -473,22 +473,29 @@ scheduler.add_job(
 scheduler.start()
 
 import threading
+import os
+
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_ACTUAL_TOKEN_HERE")
 
 def run_bot():
     import asyncio
     from telegram.ext import Application, CommandHandler, MessageHandler, filters
     from bot import start, handle_message
 
+    async def main():
+        application = Application.builder().token(BOT_TOKEN).build()
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        print("Bot is running...")
+        await application.initialize()
+        await application.start()
+        await application.updater.start_polling()
+        await asyncio.Event().wait()
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
 
-    application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    print("Bot is running...")
-    application.run_polling()
-
-# Start bot thread when gunicorn loads this module
 bot_thread = threading.Thread(target=run_bot, daemon=True)
 bot_thread.start()
 
